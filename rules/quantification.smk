@@ -5,21 +5,6 @@ def featurecounts_args(sample):
     return pars
 
 
-## Deal with aligned reads that will be used for quantification.
-if UMIs:
-    aligned_reads = f"{OUTDIR}/dedup/alignments/{{sample}}/{{sample}}.bam"
-else:
-    aligned_reads = f"{OUTDIR}/mapped/{chosen_aligner}/{{sample}}/Aligned.sortedByCoord.out.bam"
-
-
-## Let stablish rule order whether data is single end or paired end for deduplication,
-## when reads contain UMIs.
-if single_end:
-    ruleorder: umi_dedup_single_end > umi_dedup_paired_end
-else:
-    ruleorder: umi_dedup_paired_end > umi_dedup_single_end
-
-
 ###  BAM INDEXING ###
 rule bam_indexing:
     input:
@@ -39,75 +24,11 @@ rule bam_indexing:
         'samtools index -@ {threads} {input.aligned}'
 
 
-### DEDUPLICATION OF READS WITH UMIs AND MAPPING COORDINATES ###
-rule umi_dedup_single_end: 
-    input:
-        bam=f"{OUTDIR}/mapped/{chosen_aligner}/{{sample}}/Aligned.sortedByCoord.out.bam",
-        bai_index=f"{OUTDIR}/mapped/{chosen_aligner}/{{sample}}/Aligned.sortedByCoord.out.bam.bai"
-    output:
-        dedup=f"{OUTDIR}/dedup/alignments/{{sample}}/{{sample}}.bam"
-    conda:
-        "../envs/umi-tools.yaml"
-    threads:
-        get_resource('umi_dedup_single_end', 'threads')
-    resources:
-        mem_mb=get_resource('umi_dedup_single_end', 'mem_mb'),
-        walltime=get_resource('umi_dedup_single_end', 'walltime')
-    params:
-        stats=f"{OUTDIR}/dedup/alignments/{{sample}}/{{sample}}"
-    log:
-        f"{LOGDIR}/dedup/{{sample}}/{{sample}}.log"
-    shell:"""
-    umi_tools dedup -I {input.bam} --log={log} -S {output.dedup} --output-stats={params.stats} \
-    --method=unique --multimapping-detection-method=NH
-    """
-
-rule umi_dedup_paired_end: 
-    input:
-        bam=f"{OUTDIR}/mapped/{chosen_aligner}/{{sample}}/Aligned.sortedByCoord.out.bam",
-        bai_index=f"{OUTDIR}/mapped/{chosen_aligner}/{{sample}}/Aligned.sortedByCoord.out.bam.bai"
-    output:
-        dedup=f"{OUTDIR}/dedup/alignments/{{sample}}/{{sample}}.bam"
-    conda:
-        "../envs/umi-tools.yaml"
-    threads:
-        get_resource('umi_dedup_paired_end', 'threads')
-    resources:
-        mem_mb=get_resource('umi_dedup_paired_end', 'mem_mb'),
-        walltime=get_resource('umi_dedup_paired_end', 'walltime')
-    params:
-        stats=f"{OUTDIR}/dedup/alignments/{{sample}}/{{sample}}"
-    log:
-        f"{LOGDIR}/dedup/{{sample}}/{{sample}}.log"
-    shell:"""
-    umi_tools dedup -I {input.bam} --log={log} -S {output.dedup} --output-stats={params.stats} \
-    --method=unique --multimapping-detection-method=NH
-    """
-
-### BAM INDEXING OF DEDUPLICATED ALIGNMENTS ###
-rule dedup_bam_indexing:
-    input:
-        aligned_dedup=f"{OUTDIR}/dedup/alignments/{{sample}}/{{sample}}.bam"
-    output:
-        bai_index=f"{OUTDIR}/dedup/alignments/{{sample}}/{{sample}}.bam.bai"
-    log:
-        f"{LOGDIR}/dedup_bam_indexing/{{sample}}.log"
-    threads:
-        get_resource("bam_indexing", "threads")
-    resources:
-        mem_mb=get_resource('bam_indexing', 'mem_mb'),
-        walltime=get_resource('bam_indexing', 'walltime')
-    conda:
-        '../envs/aligners.yaml'
-    shell:
-        'samtools index -@ {threads} {input.aligned}'
-
-
 ### HTSEQ COUNT ###
 rule htseq_count:
     input:
-        bam_file=aligned_reads,
-        bai_index=aligned_reads + "bai"
+        bam_file=f"{OUTDIR}/mapped/{chosen_aligner}/{{sample}}/Aligned.sortedByCoord.out.bam",
+        bai_index=f"{OUTDIR}/mapped/{chosen_aligner}/{{sample}}/Aligned.sortedByCoord.out.bam.bai"
     output:
         quant=f"{OUTDIR}/quant/{chosen_aligner}/htseq/{{sample}}.tab"
     threads:
@@ -117,14 +38,14 @@ rule htseq_count:
         walltime=get_resource('htseq_count', 'walltime')
     params:
         annotation= lambda x: config['ref'][chosen_aligner]['annotation'] if chosen_aligner != 'salmon' else '',
-        extra='-f bam -r pos',
-        mode = config['parameters']['htseq-count']['mode'],
-        strandedness = config['parameters']['htseq-count']['strandedness']
+        extra=config['parameters']['htseq-count']['extra'],
+        mode=config['parameters']['htseq-count']['mode'],
+        strandedness=config['parameters']['htseq-count']['strandedness']
     log:
         f"{LOGDIR}/htseq_count/{{sample}}.log"
     conda:
         '../envs/cuantification.yaml'
-    shell: 'htseq-count {params.extra} {params.mode} {params.strandedness} {input.bam_file} {params.annotation} > {output.quant} 2> {log}'
+    shell: 'htseq-count -f bam -r pos {params.extra} {params.mode} {params.strandedness} {input.bam_file} {params.annotation} > {output.quant} 2> {log}'
 
 
 rule htseq_count_matrix:
@@ -148,7 +69,7 @@ rule htseq_count_matrix:
 ### FEATURECOUNTS ###
 rule featurecounts:
     input:
-        bam_file= aligned_reads
+        bam_file= f"{OUTDIR}/mapped/{chosen_aligner}/{{sample}}/Aligned.sortedByCoord.out.bam"
     output:
         quant=f"{OUTDIR}/quant/{chosen_aligner}/featureCounts/{{sample}}.tab",
         quant_summary=f"{OUTDIR}/quant/{chosen_aligner}/featureCounts/{{sample}}.tab.summary"

@@ -105,6 +105,8 @@ properties:
             htseq-count:
                 type: object
                 properties:
+                    extra:
+                        type: string
                     mode:
                         type: string
                     strandedness:
@@ -130,7 +132,6 @@ properties:
                     - design
 
 
-    
     resources:
         properties:
             default:
