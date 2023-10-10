@@ -59,17 +59,13 @@ levels_colors <- list(condition = levels_colors[["condition"]]
 # Get top 25 and bottom 25 DE genes
 top <- diffexp %>% arrange(desc(log2FoldChange)) %>% 
   top_n(n = 25, wt = log2FoldChange) %>% select(rowname) %>% pull
-top_symbols <- ensg_symbol[which(ensg_symbol["EnsemblGeneID"] == top), "GeneSymbol"]
 
 bottom <-diffexp %>% arrange(log2FoldChange) %>% 
   top_n(n = -25, wt = log2FoldChange) %>% select(rowname) %>% pull
-bottom_symbols <- ensg_symbol[which(ensg_symbol["EnsemblGeneID"] == bottom), "GeneSymbol"]
 
 # Subset the normalized count matrix and scale by row
 norm_counts <- t(apply(norm_counts[c(top, bottom), samples], 1, scale))
 colnames(norm_counts) <- samples
-gene_symbols <- c(top_symbols, bottom_symbols)
-rownames(norm_counts) <- gene_symbols
 
 # Specify the colors and breaks of the plot
 colors <- colorRampPalette(c("blue", "white", "red"))(100)

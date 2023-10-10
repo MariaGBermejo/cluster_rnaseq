@@ -125,12 +125,9 @@ properties:
                         type: string
                     design:
                         type: string
-                    specie:
-                        type: string
                 required:
                     - designmatrix
                     - design
-                    - specie
 
 
     
