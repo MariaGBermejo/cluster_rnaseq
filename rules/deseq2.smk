@@ -15,7 +15,7 @@ rule deseq2_init:
         designmatrix=config['parameters']['deseq2']['designmatrix'],
         ref_levels=ref_levels.to_list(),
         design=config['parameters']['deseq2']['design'],
-        batch=batch,
+        batch=batch
     log: f"{LOGDIR}/deseq2/{deseq_path}/deseq2_init.log"
     conda:
         "../envs/deseq2.yaml"
@@ -25,7 +25,7 @@ rule deseq2_init:
 
 rule deseq2_diffexp:
     input:
-        dds = rules.deseq2_init.output.dds,
+        dds = rules.deseq2_init.output.dds
     output:
         xlsx = f"{OUTDIR}/deseq2/{deseq_path}/{{contrast}}/{{contrast}}_diffexp.xlsx",
         tsv = f"{OUTDIR}/deseq2/{deseq_path}/{{contrast}}/{{contrast}}_diffexp.tsv",

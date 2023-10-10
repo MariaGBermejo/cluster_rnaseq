@@ -7,7 +7,6 @@ suppressMessages(library("tidyr"))
 suppressMessages(library("dplyr"))
 suppressMessages(library("limma"))
 
-
 ## PARALLELIZATION ##
 parallel <- FALSE
 if (snakemake@threads > 1) {

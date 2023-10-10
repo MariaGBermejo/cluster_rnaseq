@@ -82,7 +82,7 @@ saveWorkbook(wb, file = snakemake@output[["xlsx"]], overwrite = TRUE)
 
 # GET SHRUNKEN LOG FOLD CHANGES.
 coef <- paste0(c(condition, levels[1], "vs", levels[2]), collapse = "_")
-res_shrink <- lfcShrink(dds, coef=coef, type="apeglm")
+res_shrink <- lfcShrink(dds, res = res, coef=coef, type="apeglm")
 
 # Sort by adjusted p-value
 res_shrink <- res_shrink[order(res_shrink$padj, decreasing = FALSE), ]
@@ -123,13 +123,13 @@ writeData(wb, sheet, res_shrink, startRow = 6)
 addStyle(wb, sheet, cols = 1:ncol(res_shrink), rows = 6, style = boldStyle, 
          gridExpand = TRUE)
 conditionalFormatting(wb, sheet, cols = 1:ncol(res_shrink), rows = 7:(nrow(res_shrink)+6),
-                      rule = "AND($C7>0, $H7<0.05, NOT(ISBLANK($F7)))", style = redStyle)
+                      rule = "AND($C7>0, $F7<0.05, NOT(ISBLANK($F7)))", style = redStyle)
 conditionalFormatting(wb, sheet, cols = 1:ncol(res_shrink), rows = 7:(nrow(res_shrink)+6),
-                      rule = "AND($C7>0, OR($H7>0.05, ISBLANK($F7)))", style = redPlainStyle)
+                      rule = "AND($C7>0, OR($F7>0.05, ISBLANK($F7)))", style = redPlainStyle)
 conditionalFormatting(wb, sheet, cols = 1:ncol(res_shrink), rows = 7:(nrow(res_shrink)+6),
-                      rule = "AND($EC7<0, $H7<0.05, NOT(ISBLANK($F7)))", style = greenStyle)
+                      rule = "AND($C7<0, $F7<0.05, NOT(ISBLANK($F7)))", style = greenStyle)
 conditionalFormatting(wb, sheet, cols = 1:ncol(res_shrink), rows = 7:(nrow(res_shrink)+6),
-                      rule = "AND($C7<0, OR($H7>0.05, ISBLANK($F7)))", style = greenPlainStyle)
+                      rule = "AND($C7<0, OR($F7>0.05, ISBLANK($F7)))", style = greenPlainStyle)
 setColWidths(wb, sheet, 1:ncol(res_shrink), widths = 13)
 
 # Save excel
