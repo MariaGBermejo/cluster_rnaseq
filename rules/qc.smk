@@ -65,10 +65,6 @@ def multiqc_concat_input(units, step):
     if step == "alignment":
         return mqc_input
     
-    # Deduplication --> UMI-tools
-    if UMIs:
-        mqc_input += expand(f"{LOGDIR}/dedup/{{samples.sample}}/{{samples.sample}}.log", samples=samples.itertuples())
-
     # Quantification
     if chosen_aligner == "star" or chosen_aligner == "hisat2":
         if chosen_quantifier == "htseq":
