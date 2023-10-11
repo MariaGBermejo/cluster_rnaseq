@@ -38,17 +38,17 @@ properties:
                         type: string
                     genome_assembly:
                         type: string
-                    salmon_index: 
+                    salmon_index:
                         type: string
             
             hisat2:
                 type: object
                 properties:
+                    annotation:
+                        type: string
                     fasta:
                         type: string
                     hisat2_index:
-                        type: string
-                    annotation:
                         type: string
 
 
@@ -98,7 +98,7 @@ properties:
                 properties:
                     gencode:
                         type: boolean
-                        
+
             multiqc:
                 type: string
 
@@ -139,7 +139,7 @@ properties:
                 properties:
                     threads:
                         type: integer
-                    mem:
+                    mem_mb:
                         type: integer
                     walltime:
                         type: integer
@@ -149,7 +149,7 @@ properties:
                 properties:
                     threads:
                         type: integer
-                    mem:
+                    mem_mb:
                         type: integer
                     walltime:
                         type: integer
@@ -159,17 +159,17 @@ properties:
                 properties:
                     threads:
                         type: integer
-                    mem:
+                    mem_mb:
                         type: integer
                     walltime:
-                        type: integer  
+                        type: integer
 
             fastq_screen_indexes:
                 type: object
                 properties:
                     threads:
                         type: integer
-                    mem:
+                    mem_mb:
                         type: integer
                     walltime:
                         type: integer
@@ -179,17 +179,17 @@ properties:
                 properties:
                     threads:
                         type: integer
-                    mem:
+                    mem_mb:
                         type: integer
                     walltime:
                         type: integer
-            
+
             concat:
                 type: object
                 properties:
                     threads:
                         type: integer
-                    mem:
+                    mem_mb:
                         type: integer
                     walltime:
                         type: integer
@@ -199,27 +199,27 @@ properties:
                 properties:
                     threads:
                         type: integer
-                    mem:
+                    mem_mb:
                         type: integer
                     walltime:
                         type: integer
-    
+
             downsample_paired_end:
                 type: object
                 properties:
                     threads:
                         type: integer
-                    mem:
+                    mem_mb:
                         type: integer
                     walltime:
                         type: integer
-                        
+
             trim_adapters_single_end:
                 type: object
                 properties:
                     threads:
                         type: integer
-                    mem:
+                    mem_mb:
                         type: integer
                     walltime:
                         type: integer
@@ -229,47 +229,47 @@ properties:
                 properties:
                     threads:
                         type: integer
-                    mem:
+                    mem_mb:
                         type: integer
                     walltime:
-                        type: integer  
-                                  
+                        type: integer
+
             salmon_quant:
                 type: object
                 properties:
                     threads:
                         type: integer
-                    mem:
+                    mem_mb:
                         type: integer
                     walltime:
                         type: integer
-            
+
             star_align:
                 type: object
                 properties:
                     threads:
                         type: integer
-                    mem:
+                    mem_mb:
                         type: integer
                     walltime:
                         type: integer
-            
+
             hisat2_align:
                 type: object
                 properties:
                     threads:
                         type: integer
-                    mem:
+                    mem_mb:
                         type: integer
                     walltime:
                         type: integer
-            
+
             hisat2_sort:
                 type: object
                 properties:
                     threads:
                         type: integer
-                    mem:
+                    mem_mb:
                         type: integer
                     walltime:
                         type: integer
@@ -279,7 +279,7 @@ properties:
                 properties:
                     threads:
                         type: integer
-                    mem:
+                    mem_mb:
                         type: integer
                     walltime:
                         type: integer
@@ -289,7 +289,7 @@ properties:
                 properties:
                     threads:
                         type: integer
-                    mem:
+                    mem_mb:
                         type: integer
                     walltime:
                         type: integer
@@ -299,57 +299,67 @@ properties:
                 properties:
                     threads:
                         type: integer
-                    mem:
+                    mem_mb:
                         type: integer
                     walltime:
                         type: integer
-            
+
+            fcounts_count_matrix:
+                type: object
+                properties:
+                    threads:
+                        type: integer
+                    mem_mb:
+                        type: integer
+                    walltime:
+                        type: integer
+
             salmon_matrix_from_quants:
                 type: object
                 properties:
                     threads:
                         type: integer
-                    mem:
+                    mem_mb:
                         type: integer
                     walltime:
                         type: integer
-               
+
             salmon_index:
                 type: object
                 properties:
                     threads:
                         type: integer
-                    mem:
+                    mem_mb:
                         type: integer
                     walltime:
                         type: integer
-            
+
             star_index:
                 type: object
                 properties:
                     threads:
                         type: integer
-                    mem:
+                    mem_mb:
                         type: integer
                     walltime:
                         type: integer
-            
+
             hisat2_index:
                 type: object
                 properties:
                     threads:
                         type: integer
-                    mem:
+                    mem_mb:
                         type: integer
                     walltime:
                         type: integer
-            
+
             htseq_count_matrix:
                 type: object
                 properties:
                     threads:
                         type: integer
-                    mem:
+                    mem_mb:
                         type: integer
                     walltime:
                         type: integer
@@ -359,7 +369,7 @@ properties:
                 properties:
                     threads:
                         type: integer
-                    mem:
+                    mem_mb:
                         type: integer
                     walltime:
                         type: integer
@@ -369,17 +379,17 @@ properties:
                 properties:
                     threads:
                         type: integer
-                    mem:
+                    mem_mb:
                         type: integer
                     walltime:
                         type: integer
-            
+
             pca:
                 type: object
                 properties:
                     threads:
                         type: integer
-                    mem:
+                    mem_mb:
                         type: integer
                     walltime:
                         type: integer
@@ -389,7 +399,7 @@ properties:
                 properties:
                     threads:
                         type: integer
-                    mem:
+                    mem_mb:
                         type: integer
                     walltime:
                         type: integer
@@ -399,17 +409,17 @@ properties:
                 properties:
                     threads:
                         type: integer
-                    mem:
+                    mem_mb:
                         type: integer
                     walltime:
                         type: integer
-            
+
             expression_heatmap:
                 type: object
                 properties:
                     threads:
                         type: integer
-                    mem:
+                    mem_mb:
                         type: integer
                     walltime:
                         type: integer
