@@ -65,6 +65,10 @@ def multiqc_concat_input(units, step):
     if step == "alignment":
         return mqc_input
     
+    # Deduplication --> UMI-tools
+    if UMIs:
+        mqc_input += expand(f"{LOGDIR}/dedup/{{samples.sample}}/{{samples.sample}}.log", samples=samples.itertuples())
+
     # Quantification
     if chosen_aligner == "star" or chosen_aligner == "hisat2":
         if chosen_quantifier == "htseq":
@@ -104,7 +108,7 @@ rule fastqc_files:
         get_resource("fastqc","threads")
     resources:
         mem_mb=get_resource("fastqc","mem_mb"),
-        walltime=get_resource("fastqc","walltime")
+        runtime=get_resource("fastqc","runtime")
     params: 
         lambda wc: "-t {}".format(get_resource("fastqc","threads"))
     log:
@@ -129,7 +133,7 @@ rule fastq_screen_indexes:
         get_resource("fastq_screen_indexes","threads")
     resources:
         mem_mb=get_resource("fastq_screen_indexes","mem_mb"),
-        walltime=get_resource("fastq_screen_indexes","walltime")
+        runtime=get_resource("fastq_screen_indexes","runtime")
     params:
         outdir=config["parameters"]["fastq_screen_indexes"]["outdir"]
     log:
@@ -155,7 +159,7 @@ rule fastq_screen_files:
         get_resource("fastq_screen","threads")
     resources:
         mem_mb=get_resource("fastq_screen","mem_mb"),
-        walltime=get_resource("fastq_screen","walltime")
+        runtime=get_resource("fastq_screen","runtime")
     params:
         fastq_screen_config="{}/FastQ_Screen_Genomes/fastq_screen.conf".format(config["parameters"]["fastq_screen_indexes"]["outdir"]),
         subset=100000,
@@ -182,7 +186,7 @@ rule multiqc_files:
     threads: get_resource("multiqc","threads")
     resources:
         mem_mb=get_resource("multiqc","mem_mb"),
-        walltime=get_resource("multiqc","walltime")
+        runtime=get_resource("multiqc","runtime")
     conda:
         '../envs/multiqc.yaml'
     script:
@@ -201,7 +205,7 @@ rule fastqc_concat:
         get_resource("fastqc","threads")
     resources:
         mem_mb=get_resource("fastqc","mem_mb"),
-        walltime=get_resource("fastqc","walltime")
+        runtime=get_resource("fastqc","runtime")
     params: 
         lambda wc: "-t {}".format(get_resource("fastqc","threads"))
     log:
@@ -224,7 +228,7 @@ rule fastq_screen_concat:
         get_resource("fastq_screen","threads")
     resources:
         mem_mb=get_resource("fastq_screen","mem_mb"),
-        walltime=get_resource("fastq_screen","walltime")
+        runtime=get_resource("fastq_screen","runtime")
     params:
         fastq_screen_config="{}/FastQ_Screen_Genomes/fastq_screen.conf".format(config["parameters"]["fastq_screen_indexes"]["outdir"]),
         subset=100000,
@@ -251,7 +255,7 @@ rule multiqc_concat:
     threads: get_resource("multiqc","threads")
     resources:
         mem_mb=get_resource("multiqc","mem_mb"),
-        walltime=get_resource("multiqc","walltime")
+        runtime=get_resource("multiqc","runtime")
     conda:
         '../envs/multiqc.yaml'
     script:
@@ -274,7 +278,7 @@ rule multiqc_join:
     threads: get_resource("multiqc","threads")
     resources:
         mem_mb=get_resource("multiqc","mem_mb"),
-        walltime=get_resource("multiqc","walltime")
+        runtime=get_resource("multiqc","runtime")
     conda:
         '../envs/multiqc.yaml'
     script:

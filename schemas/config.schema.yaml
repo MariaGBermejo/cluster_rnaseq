@@ -54,6 +54,16 @@ properties:
 
     parameters:
         properties:
+            umi_processing:
+                type: object
+                properties:
+                    enabled:
+                        type: boolean
+                    umi_pattern1:
+                        type: string
+                    umi_pattern2:
+                        type: string
+
             downsampling:
                 type: object
                 properties:
@@ -63,6 +73,7 @@ properties:
                         type: integer
                     seed:
                         type: integer
+
             trimming:
                 type: object
                 properties:
@@ -111,7 +122,7 @@ properties:
                         type: string
                     strandedness:
                         type: string
-            
+
             featureCounts:
                 type: object
                 properties:
@@ -132,6 +143,10 @@ properties:
                     - design
 
 
+<<<<<<< HEAD
+=======
+    
+>>>>>>> upstream/master
     resources:
         properties:
             default:
@@ -141,7 +156,7 @@ properties:
                         type: integer
                     mem_mb:
                         type: integer
-                    walltime:
+                    runtime:
                         type: integer
 
             fastqc:
@@ -151,7 +166,7 @@ properties:
                         type: integer
                     mem_mb:
                         type: integer
-                    walltime:
+                    runtime:
                         type: integer
 
             fastq_screen:
@@ -161,8 +176,13 @@ properties:
                         type: integer
                     mem_mb:
                         type: integer
+<<<<<<< HEAD
                     walltime:
                         type: integer
+=======
+                    runtime:
+                        type: integer  
+>>>>>>> upstream/master
 
             fastq_screen_indexes:
                 type: object
@@ -171,7 +191,7 @@ properties:
                         type: integer
                     mem_mb:
                         type: integer
-                    walltime:
+                    runtime:
                         type: integer
 
             multiqc:
@@ -181,7 +201,7 @@ properties:
                         type: integer
                     mem_mb:
                         type: integer
-                    walltime:
+                    runtime:
                         type: integer
 
             concat:
@@ -191,7 +211,7 @@ properties:
                         type: integer
                     mem_mb:
                         type: integer
-                    walltime:
+                    runtime:
                         type: integer
 
             downsample_single_end:
@@ -201,7 +221,7 @@ properties:
                         type: integer
                     mem_mb:
                         type: integer
-                    walltime:
+                    runtime:
                         type: integer
 
             downsample_paired_end:
@@ -210,11 +230,26 @@ properties:
                     threads:
                         type: integer
                     mem_mb:
+<<<<<<< HEAD
+=======
+                        type: integer
+                    runtime:
+                        type: integer
+
+            umi_extract_single_end:
+                type: object
+                properties:
+                    threads:
+                        type: integer
+                    mem_mb:
+>>>>>>> upstream/master
                         type: integer
                     walltime:
                         type: integer
 
-            trim_adapters_single_end:
+<<<<<<< HEAD
+=======
+            umi_extract_paired_end:
                 type: object
                 properties:
                     threads:
@@ -222,6 +257,17 @@ properties:
                     mem_mb:
                         type: integer
                     walltime:
+                        type: integer
+
+>>>>>>> upstream/master
+            trim_adapters_single_end:
+                type: object
+                properties:
+                    threads:
+                        type: integer
+                    mem_mb:
+                        type: integer
+                    runtime:
                         type: integer
 
             trim_adapters_paired_end:
@@ -231,9 +277,15 @@ properties:
                         type: integer
                     mem_mb:
                         type: integer
+<<<<<<< HEAD
                     walltime:
                         type: integer
 
+=======
+                    runtime:
+                        type: integer  
+                                  
+>>>>>>> upstream/master
             salmon_quant:
                 type: object
                 properties:
@@ -241,7 +293,7 @@ properties:
                         type: integer
                     mem_mb:
                         type: integer
-                    walltime:
+                    runtime:
                         type: integer
 
             star_align:
@@ -251,7 +303,7 @@ properties:
                         type: integer
                     mem_mb:
                         type: integer
-                    walltime:
+                    runtime:
                         type: integer
 
             hisat2_align:
@@ -261,7 +313,7 @@ properties:
                         type: integer
                     mem_mb:
                         type: integer
-                    walltime:
+                    runtime:
                         type: integer
 
             hisat2_sort:
@@ -271,7 +323,7 @@ properties:
                         type: integer
                     mem_mb:
                         type: integer
-                    walltime:
+                    runtime:
                         type: integer
 
             bam_indexing:
@@ -284,7 +336,7 @@ properties:
                     walltime:
                         type: integer
 
-            htseq_count:
+            umi_dedup_single_end:
                 type: object
                 properties:
                     threads:
@@ -292,6 +344,26 @@ properties:
                     mem_mb:
                         type: integer
                     walltime:
+                        type: integer
+
+            umi_dedup_paired_end:
+                type: object
+                properties:
+                    threads:
+                        type: integer
+                    mem_mb:
+                        type: integer
+                    runtime:
+                        type: integer
+
+            htseq_count:
+                type: object
+                properties:
+                    threads:
+                        type: integer
+                    mem_mb:
+                        type: integer
+                    runtime:
                         type: integer
 
             featureCounts:
@@ -311,9 +383,15 @@ properties:
                         type: integer
                     mem_mb:
                         type: integer
+<<<<<<< HEAD
                     walltime:
                         type: integer
 
+=======
+                    runtime:
+                        type: integer
+            
+>>>>>>> upstream/master
             salmon_matrix_from_quants:
                 type: object
                 properties:
@@ -321,7 +399,7 @@ properties:
                         type: integer
                     mem_mb:
                         type: integer
-                    walltime:
+                    runtime:
                         type: integer
 
             salmon_index:
@@ -331,7 +409,7 @@ properties:
                         type: integer
                     mem_mb:
                         type: integer
-                    walltime:
+                    runtime:
                         type: integer
 
             star_index:
@@ -341,7 +419,7 @@ properties:
                         type: integer
                     mem_mb:
                         type: integer
-                    walltime:
+                    runtime:
                         type: integer
 
             hisat2_index:
@@ -351,7 +429,7 @@ properties:
                         type: integer
                     mem_mb:
                         type: integer
-                    walltime:
+                    runtime:
                         type: integer
 
             htseq_count_matrix:
@@ -361,7 +439,7 @@ properties:
                         type: integer
                     mem_mb:
                         type: integer
-                    walltime:
+                    runtime:
                         type: integer
 
             deseq2_init:
@@ -371,7 +449,7 @@ properties:
                         type: integer
                     mem_mb:
                         type: integer
-                    walltime:
+                    runtime:
                         type: integer
 
             deseq2_diffexp:
@@ -381,7 +459,7 @@ properties:
                         type: integer
                     mem_mb:
                         type: integer
-                    walltime:
+                    runtime:
                         type: integer
 
             pca:
@@ -391,7 +469,7 @@ properties:
                         type: integer
                     mem_mb:
                         type: integer
-                    walltime:
+                    runtime:
                         type: integer
 
             ma:
@@ -401,7 +479,7 @@ properties:
                         type: integer
                     mem_mb:
                         type: integer
-                    walltime:
+                    runtime:
                         type: integer
 
             distance:
@@ -411,7 +489,7 @@ properties:
                         type: integer
                     mem_mb:
                         type: integer
-                    walltime:
+                    runtime:
                         type: integer
 
             expression_heatmap:
@@ -421,7 +499,7 @@ properties:
                         type: integer
                     mem_mb:
                         type: integer
-                    walltime:
+                    runtime:
                         type: integer
 
 required:

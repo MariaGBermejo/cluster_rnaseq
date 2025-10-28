@@ -5,6 +5,21 @@ def featurecounts_args(sample):
     return pars
 
 
+## Deal with aligned reads that will be used for quantification.
+if UMIs:
+    aligned_reads = f"{OUTDIR}/dedup/alignments/{{sample}}/{{sample}}.bam"
+else:
+    aligned_reads = f"{OUTDIR}/mapped/{chosen_aligner}/{{sample}}/Aligned.sortedByCoord.out.bam"
+
+
+## Let stablish rule order whether data is single end or paired end for deduplication,
+## when reads contain UMIs.
+if single_end:
+    ruleorder: umi_dedup_single_end > umi_dedup_paired_end
+else:
+    ruleorder: umi_dedup_paired_end > umi_dedup_single_end
+
+
 ###  BAM INDEXING ###
 rule bam_indexing:
     input:
@@ -17,30 +32,99 @@ rule bam_indexing:
         get_resource("bam_indexing", "threads")
     resources:
         mem_mb=get_resource('bam_indexing', 'mem_mb'),
-        walltime=get_resource('bam_indexing', 'walltime')
+        runtime=get_resource('bam_indexing', 'runtime')
     conda:
         '../envs/aligners.yaml'
     shell:
         'samtools index -@ {threads} {input.aligned}'
 
 
+### DEDUPLICATION OF READS WITH UMIs AND MAPPING COORDINATES ###
+rule umi_dedup_single_end: 
+    input:
+        bam=f"{OUTDIR}/mapped/{chosen_aligner}/{{sample}}/Aligned.sortedByCoord.out.bam",
+        bai_index=f"{OUTDIR}/mapped/{chosen_aligner}/{{sample}}/Aligned.sortedByCoord.out.bam.bai"
+    output:
+        dedup=f"{OUTDIR}/dedup/alignments/{{sample}}/{{sample}}.bam"
+    conda:
+        "../envs/umi-tools.yaml"
+    threads:
+        get_resource('umi_dedup_single_end', 'threads')
+    resources:
+        mem_mb=get_resource('umi_dedup_single_end', 'mem_mb'),
+        runtime=get_resource('umi_dedup_single_end', 'runtime')
+    params:
+        stats=f"{OUTDIR}/dedup/alignments/{{sample}}/{{sample}}"
+    log:
+        f"{LOGDIR}/dedup/{{sample}}/{{sample}}.log"
+    shell:"""
+    umi_tools dedup -I {input.bam} --log={log} -S {output.dedup} --output-stats={params.stats} \
+    --method=unique --multimapping-detection-method=NH
+    """
+
+rule umi_dedup_paired_end: 
+    input:
+        bam=f"{OUTDIR}/mapped/{chosen_aligner}/{{sample}}/Aligned.sortedByCoord.out.bam",
+        bai_index=f"{OUTDIR}/mapped/{chosen_aligner}/{{sample}}/Aligned.sortedByCoord.out.bam.bai"
+    output:
+        dedup=f"{OUTDIR}/dedup/alignments/{{sample}}/{{sample}}.bam"
+    conda:
+        "../envs/umi-tools.yaml"
+    threads:
+        get_resource('umi_dedup_paired_end', 'threads')
+    resources:
+        mem_mb=get_resource('umi_dedup_paired_end', 'mem_mb'),
+        runtime=get_resource('umi_dedup_paired_end', 'runtime')
+    params:
+        stats=f"{OUTDIR}/dedup/alignments/{{sample}}/{{sample}}"
+    log:
+        f"{LOGDIR}/dedup/{{sample}}/{{sample}}.log"
+    shell:"""
+    umi_tools dedup -I {input.bam} --log={log} -S {output.dedup} --output-stats={params.stats} \
+    --method=unique --multimapping-detection-method=NH
+    """
+
+### BAM INDEXING OF DEDUPLICATED ALIGNMENTS ###
+rule dedup_bam_indexing:
+    input:
+        aligned_dedup=f"{OUTDIR}/dedup/alignments/{{sample}}/{{sample}}.bam"
+    output:
+        bai_index=f"{OUTDIR}/dedup/alignments/{{sample}}/{{sample}}.bam.bai"
+    log:
+        f"{LOGDIR}/dedup_bam_indexing/{{sample}}.log"
+    threads:
+        get_resource("bam_indexing", "threads")
+    resources:
+        mem_mb=get_resource('bam_indexing', 'mem_mb'),
+        runtime=get_resource('bam_indexing', 'runtime')
+    conda:
+        '../envs/aligners.yaml'
+    shell:
+        'samtools index -@ {threads} {input.aligned_dedup}'
+
+
 ### HTSEQ COUNT ###
 rule htseq_count:
     input:
-        bam_file=f"{OUTDIR}/mapped/{chosen_aligner}/{{sample}}/Aligned.sortedByCoord.out.bam",
-        bai_index=f"{OUTDIR}/mapped/{chosen_aligner}/{{sample}}/Aligned.sortedByCoord.out.bam.bai"
+        bam_file=aligned_reads,
+        bai_index=aligned_reads + ".bai"
     output:
         quant=f"{OUTDIR}/quant/{chosen_aligner}/htseq/{{sample}}.tab"
     threads:
         get_resource('htseq_count', 'threads')
     resources:
         mem_mb=get_resource('htseq_count', 'mem_mb'),
-        walltime=get_resource('htseq_count', 'walltime')
+        runtime=get_resource('htseq_count', 'runtime')
     params:
         annotation= lambda x: config['ref'][chosen_aligner]['annotation'] if chosen_aligner != 'salmon' else '',
         extra=config['parameters']['htseq-count']['extra'],
+<<<<<<< HEAD
         mode=config['parameters']['htseq-count']['mode'],
         strandedness=config['parameters']['htseq-count']['strandedness']
+=======
+        mode = config['parameters']['htseq-count']['mode'],
+        strandedness = config['parameters']['htseq-count']['strandedness']
+>>>>>>> upstream/master
     log:
         f"{LOGDIR}/htseq_count/{{sample}}.log"
     conda:
@@ -58,7 +142,7 @@ rule htseq_count_matrix:
         get_resource("htseq_count_matrix", "threads")
     resources:
         mem_mb=get_resource("htseq_count_matrix", "mem_mb"),
-        walltime=get_resource("htseq_count_matrix", "walltime")
+        runtime=get_resource("htseq_count_matrix", "runtime")
     log: f"{LOGDIR}/deseq2/{chosen_aligner}/htseq_count_matrix.log"
     conda:
         '../envs/deseq2.yaml'
@@ -69,7 +153,7 @@ rule htseq_count_matrix:
 ### FEATURECOUNTS ###
 rule featurecounts:
     input:
-        bam_file= f"{OUTDIR}/mapped/{chosen_aligner}/{{sample}}/Aligned.sortedByCoord.out.bam"
+        bam_file= aligned_reads
     output:
         quant=f"{OUTDIR}/quant/{chosen_aligner}/featureCounts/{{sample}}.tab",
         quant_summary=f"{OUTDIR}/quant/{chosen_aligner}/featureCounts/{{sample}}.tab.summary"
@@ -77,7 +161,7 @@ rule featurecounts:
         get_resource('featureCounts', 'threads')
     resources:
         mem_mb=get_resource('featureCounts', 'mem_mb'),
-        walltime=get_resource('featureCounts', 'walltime')
+        runtime=get_resource('featureCounts', 'runtime')
     params:
         args= lambda wc: featurecounts_args(wc.sample),
         extra= config['parameters']['featureCounts']['extra'],
@@ -99,7 +183,7 @@ rule fcounts_count_matrix:
         get_resource('fcounts_count_matrix', 'threads')
     resources:
         mem_mb=get_resource('fcounts_count_matrix', 'mem_mb'),
-        walltime=get_resource('fcounts_count_matrix', 'walltime')
+        runtime=get_resource('fcounts_count_matrix', 'runtime')
     params:
         samples=config['samples'],
     script:
@@ -119,7 +203,7 @@ rule salmon_matrix_from_quants:
         get_resource('salmon_matrix_from_quants', 'threads')
     resources:
         mem_mb=get_resource('salmon_matrix_from_quants', 'mem_mb'),
-        walltime=get_resource('salmon_matrix_from_quants', 'walltime')
+        runtime=get_resource('salmon_matrix_from_quants', 'runtime')
     params:
         salmon_quant_directory = f"{OUTDIR}/quant/salmon",
         samples                  = config['samples']
